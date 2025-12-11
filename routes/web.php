@@ -86,5 +86,21 @@ Route::middleware(['auth'])->group(function(){
     //dashboard
     Route::get('/dashboard',[DashboardController::class,'dashboard'])->name('dashboard');
 
+    //machining process
+    Route::prefix('machining')->name('machining.')->group(function(){
+
+        //monitoring
+        Route::prefix('monitoring')->name('monitoring.')->group(function(){
+
+            Route::get('/',function(){
+                return view('machining.monitoring.index');
+            })->name('index');
+
+
+
+        });
+
+    });
+
 });
 
