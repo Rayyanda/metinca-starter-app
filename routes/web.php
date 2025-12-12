@@ -81,7 +81,7 @@ Route::middleware('guest')->group(function () {
 // ============================================
 
 
-Route::middleware(['auth'])->group(function(){
+Route::middleware(['auth','verified'])->group(function(){
 
     //dashboard
     Route::get('/dashboard',[DashboardController::class,'dashboard'])->name('dashboard');
@@ -89,18 +89,11 @@ Route::middleware(['auth'])->group(function(){
     //machining process
     Route::prefix('machining')->name('machining.')->group(function(){
 
-        //monitoring
-        Route::prefix('monitoring')->name('monitoring.')->group(function(){
-
-            Route::get('/',function(){
-                return view('machining.monitoring.index');
-            })->name('index');
-
-
-
-        });
+        Route::get('dashboard',[App\Http\Controllers\Machining\DashboardController::class,'index'])->name('dashboard.index');
 
     });
+
+    Route::resource('roles',\App\Http\Controllers\RoleController::class);
 
 });
 

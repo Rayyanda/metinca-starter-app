@@ -145,7 +145,7 @@
                         title: 'Login Berhasil',
                         text: 'Selamat datang kembali!',
                         icon: 'success',
-                        confirmButtonText: 'Lanjutkan'
+                        //confirmButtonText: 'Lanjutkan'
                     }).then(() => {
                     window.location.href = '{{ route('dashboard') }}';
                     });

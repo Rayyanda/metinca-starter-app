@@ -27,8 +27,11 @@
                 <div class="sidebar-header position-relative">
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="logo">
-                            <a href="index.html"><img src="./assets/compiled/svg/logo.svg" alt="Logo"
-                                    srcset=""></a>
+                            <a href="/">
+                                {{-- <img src="{{ asset('assets/images/logo-metinca.jpg') }}" alt="Logo"
+                                    srcset=""> --}}
+                                    Metinca
+                                </a>
                         </div>
                         <div class="theme-toggle d-flex gap-2  align-items-center mt-2">
                             <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -81,12 +84,27 @@
 
                         <li class="sidebar-item  ">
                             <a href="#" class='sidebar-link'>
-                                <i class="bi bi-grid-1x2-fill"></i>
-                                <span>standalone menu</span>
+                                <i class="bi bi-gear-fill"></i>
+                                <span>Machine</span>
                             </a>
-
-
                         </li>
+
+                        <li class="sidebar-item  ">
+                            <a href="#" class='sidebar-link'>
+                                <i class="bi bi-diagram-3"></i>
+                                <span>Data Divisions</span>
+                            </a>
+                        </li>
+
+                        {{-- batches --}}
+                        <li class="sidebar-item">
+                            <a href="#" class='sidebar-link'>
+                                <i class="bi bi-box-seam"></i>
+                                <span>Batches</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-title">Divisions</li>
 
                         <li class="sidebar-item  has-sub {{ request()->routeIs('machining.*') ? 'active' : '' }}">
                             <a href="#" class='sidebar-link '>
@@ -97,7 +115,7 @@
                             <ul class="submenu ">
 
                                 <li class="submenu-item  ">
-                                    <a href="{{ route('machining.monitoring.index') }}" class="submenu-link">Monitoring</a>
+                                    <a href="{{ route('machining.dashboard.index') }}" class="submenu-link">Dashboard Machining</a>
                                 </li>
 
                                 <li class="submenu-item  ">
@@ -116,6 +134,22 @@
 
 
                         </li>
+
+                        <li class="sidebar-title">Role & Permission</li>
+
+                        <li class="sidebar-item {{ request()->routeIs('roles.*') ? 'active' : '' }} ">
+                            <a href="{{ route('roles.index') }}" class='sidebar-link'>
+                                <i class="bi bi-shield-lock-fill"></i>
+                                <span>Roles</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item  ">
+                            <a href="#" class='sidebar-link'>
+                                <i class="bi bi-key-fill"></i>
+                                <span>Permissions</span>
+                            </a>
+                        </li>
+
 
                     </ul>
                 </div>
@@ -206,7 +240,7 @@
                                         </div>
                                         <div class="user-img d-flex align-items-center">
                                             <div class="avatar avatar-md">
-                                                <img src="./assets/compiled/jpg/1.jpg" />
+                                                <img src="{{ asset('assets/compiled/jpg/1.jpg') }}" />
                                             </div>
                                         </div>
                                     </div>
@@ -214,7 +248,7 @@
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton"
                                     style="min-width: 11rem">
                                     <li>
-                                        <h6 class="dropdown-header">Hello, John!</h6>
+                                        <h6 class="dropdown-header">Hello, {{ auth()->user()->name }}!</h6>
                                     </li>
                                     <li>
                                         <a class="dropdown-item" href="#"><i
@@ -283,6 +317,9 @@
                 confirmButtonText: 'Ya, Logout',
                 cancelButtonText: 'Batal'
             }).then((result) => {
+                if (!result.isConfirmed) {
+                    return;
+                }
                 App.ajax('{{ route('logout') }}', 'POST',new FormData(this)).then(response => {
                     Swal.fire({
                         title: 'Berhasil!',
