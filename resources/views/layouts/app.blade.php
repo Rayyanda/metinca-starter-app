@@ -27,7 +27,7 @@
                 <div class="sidebar-header position-relative">
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="logo">
-                            <a href="index.html"><img src="./assets/compiled/svg/logo.svg" alt="Logo"
+                            <a href="index.html"><img src="{{ asset('assets/compiled/svg/logo.svg') }}" alt="Logo"
                                     srcset=""></a>
                         </div>
                         <div class="theme-toggle d-flex gap-2  align-items-center mt-2">
@@ -79,16 +79,126 @@
 
                         </li>
 
-                        <li class="sidebar-item  ">
-                            <a href="#" class='sidebar-link'>
-                                <i class="bi bi-grid-1x2-fill"></i>
-                                <span>standalone menu</span>
+                        <li class="sidebar-item  {{ request()->routeIs('divisions.*') ? 'active' : '' }}">
+                            <a href="{{ route('divisions.index') }}" class='sidebar-link'>
+                                <i class="bi bi-collection-fill"></i>
+                                <span>Divisions</span>
                             </a>
-
-
+                        </li>
+                        
+                        <li class="sidebar-item  {{ request()->routeIs('machines.*') ? 'active' : '' }}">
+                            <a href="{{ route('machines.index') }}" class='sidebar-link'>
+                                <i class="bi bi-device-hdd"></i>
+                                <span>Machines</span>
+                            </a>
                         </li>
 
+                        <li class="sidebar-item  {{ request()->routeIs('operations.*') ? 'active' : '' }}">
+                            <a href="{{ route('operations.index') }}" class='sidebar-link'>
+                                <i class="bi bi-gear"></i>
+                                <span>Operations</span>
+                            </a>
+                        </li>
+
+
+
+                        <li class="sidebar-item  {{ request()->routeIs('po-internals.*') ? 'active' : '' }}">
+                            <a href="{{ route('po-internals.index') }}" class='sidebar-link'>
+                                <i class="bi bi-envelope-paper"></i>
+                                <span>PO Internal</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-item  {{ request()->routeIs('batches.*') ? 'active' : '' }}">
+                            <a href="{{ route('batches.index') }}" class='sidebar-link'>
+                                <i class="bi bi-files"></i>
+                                <span>Batches</span>
+                            </a>
+                        </li>
+
+                        {{-- @if(auth()->user()->hasRole('wax-room'))
+                            <li class="sidebar-item  {{ request()->routeIs('wax-room.*') ? 'active' : '' }}">
+                                <a href="{{ route('wax-room.index') }}" class='sidebar-link'>
+                                    <i class="bi bi-wrench"></i>
+                                    <span>Wax Room</span>
+                                </a>
+                            </li>
+                        @endif --}}
+
+                        <li class="sidebar-title">User Management</li>
+
+                        <li class="sidebar-item  {{ request()->routeIs('users.*') ? 'active' : '' }}">
+                            <a href="{{ route('users.index') }}" class='sidebar-link'>
+                                <i class="bi bi-person-check"></i>
+                                <span>Users</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item  {{ request()->routeIs('roles.*') ? 'active' : '' }}">
+                            <a href="{{ route('roles.index') }}" class='sidebar-link'>
+                                <i class="bi bi-person-check"></i>
+                                <span>Roles</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-item  {{ request()->routeIs('permissions.*') ? 'active' : '' }}">
+                            <a href="{{ route('permissions.index') }}" class='sidebar-link'>
+                                <i class="bi bi-person-check"></i>
+                                <span>Permissions</span>
+                            </a>
+                        </li>
+                        
+
+                        @if(auth()->user()->hasRole('supervisor'))
+                        @endif
+
+                        <li class="sidebar-title">Process Section</li>
+
+                        <li class="sidebar-item  has-sub">
+                            <a href="#" class='sidebar-link '>
+                                <i class="bi bi-stack"></i>
+                                <span>Wax Room</span>
+                            </a>
+                            <ul class="submenu ">
+
+                                <li class="submenu-item  ">
+                                    <a href="{{ route('quality.track','WAX') }}" class="submenu-link">Quality Process</a>
+                                </li>
+
+                                <li class="submenu-item  ">
+                                    <a href="#" class="submenu-link">Onboard</a>
+                                </li>
+
+                                <li class="submenu-item  ">
+                                    <a href="#" class="submenu-link">History</a>
+                                </li>
+
+                            </ul>
+
+                        </li>
                         <li class="sidebar-item  has-sub {{ request()->routeIs('machining.*') ? 'active' : '' }}">
+                            <a href="#" class='sidebar-link '>
+                                <i class="bi bi-stack"></i>
+                                <span>Machining</span>
+                            </a>
+
+                            <ul class="submenu ">
+
+                                <li class="submenu-item  ">
+                                    <a href="#" class="submenu-link">Quality Process</a>
+                                </li>
+
+                                <li class="submenu-item  ">
+                                    <a href="#" class="submenu-link">Onboard</a>
+                                </li>
+
+                                <li class="submenu-item  ">
+                                    <a href="#" class="submenu-link">History</a>
+                                </li>
+
+                            </ul>
+
+                        </li>
+                        {{-- <li class="sidebar-item  has-sub {{ request()->routeIs('machining.*') ? 'active' : '' }}">
                             <a href="#" class='sidebar-link '>
                                 <i class="bi bi-stack"></i>
                                 <span>Machining</span>
@@ -114,8 +224,7 @@
 
                             </ul>
 
-
-                        </li>
+                        </li> --}}
 
                     </ul>
                 </div>
@@ -206,7 +315,7 @@
                                         </div>
                                         <div class="user-img d-flex align-items-center">
                                             <div class="avatar avatar-md">
-                                                <img src="./assets/compiled/jpg/1.jpg" />
+                                                <img src="{{ asset('assets/compiled/jpg/1.jpg') }}" />
                                             </div>
                                         </div>
                                     </div>
@@ -247,7 +356,7 @@
                 </nav>
             </header>
 
-            <div class="main-content">
+            <div class="main-content" style="min-height: 750px">
                 @yield('content')
             </div>
 

@@ -17,7 +17,7 @@
                 <div class="logo-icon">
                     <i class="bi bi-gear-fill"></i>
                 </div>
-                <h1 class="brand-name">Metinca Starter App</h1>
+                <h1 class="brand-name">Production Execution</h1>
                 <p class="brand-tagline">The Starter App for metinca application web program</p>
             </div>
 
@@ -145,7 +145,9 @@
                         title: 'Login Berhasil',
                         text: 'Selamat datang kembali!',
                         icon: 'success',
-                        confirmButtonText: 'Lanjutkan'
+                        timer: 1500,
+                        showConfirmButton : false,
+                        //confirmButtonText: 'Lanjutkan'
                     }).then(() => {
                     window.location.href = '{{ route('dashboard') }}';
                     });

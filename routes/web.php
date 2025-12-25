@@ -7,9 +7,19 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\BatchController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\POInternalController;
+use App\Http\Controllers\BatchOperationController;
+use App\Http\Controllers\DivisionController;
+use App\Http\Controllers\OperationController;
+use App\Http\Controllers\MachineController;
+use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\QualityCheckController;
 
 Route::get('/',function(){
     if(Auth::check()){
@@ -86,6 +96,62 @@ Route::middleware(['auth'])->group(function(){
     //dashboard
     Route::get('/dashboard',[DashboardController::class,'dashboard'])->name('dashboard');
 
+    // PO Internal
+    Route::resource('po-internals', POInternalController::class);
+    Route::post('/po-internals/{id}/confirm', [POInternalController::class, 'confirm'])->name('po-internals.confirm');
+
+    //Batches
+    Route::resource('batches',BatchController::class);
+
+    Route::resource('machines',MachineController::class);
+    // Downtime Management
+    Route::post('/machines/{id}/report-downtime', [MachineController::class, 'reportDowntime'])->name('machines.report-downtime');
+    Route::post('/downtimes/{id}/resolve', [MachineController::class, 'resolveDowntime'])->name('machines.resolve-downtime');
+    Route::get('/machines/{id}/downtime-history', [MachineController::class, 'downtimeHistory'])->name('machines.downtime-history');
+    
+    // Additional Actions
+    Route::post('/machines/{id}/toggle-active', [MachineController::class, 'toggleActive'])->name('machines.toggle-active');
+    Route::post('/machines/bulk-update-status', [MachineController::class, 'bulkUpdateStatus'])->name('machines.bulk-update-status');
+    Route::get('/machines/export', [MachineController::class, 'export'])->name('machines.export');
+    
+    // API Endpoints
+    Route::prefix('api/machines')->name('api.machines.')->group(function () {
+        Route::get('/available-for-operation/{operationId}', [MachineController::class, 'getAvailableForOperation'])->name('available-for-operation');
+        Route::get('/{id}/statistics', [MachineController::class, 'getStatistics'])->name('statistics');
+    });
+
+    Route::resource('operations',OperationController::class);
+
+    Route::resource('divisions',DivisionController::class);
+
+    Route::resource('roles',RoleController::class);
+
+    Route::resource('permissions',PermissionController::class);
+
+    Route::resource('users',UserController::class);
+
+    Route::prefix('operation')->name('operations.')->group(function(){
+
+        Route::post('/{id}/add-machine', [OperationController::class, 'addMachine'])->name('add-machine');
+            Route::delete('/{operationId}/remove-machine/{machineId}', [OperationController::class, 'removeMachine'])->name('remove-machine');
+            Route::put('/{operationId}/update-machine/{machineId}', [OperationController::class, 'updateMachine'])->name('update-machine');
+            
+            // Additional actions
+            Route::post('/{id}/toggle-active', [OperationController::class, 'toggleActive'])->name('toggle-active');
+            Route::post('/{id}/duplicate', [OperationController::class, 'duplicate'])->name('duplicate');
+            Route::post('/update-sequence', [OperationController::class, 'updateSequence'])->name('update-sequence');
+    });
+
+
+
+    Route::get('/my-operations', [BatchOperationController::class, 'myOperations'])->name('operations.my');
+    Route::get('/operations/{id}/start', [BatchOperationController::class, 'showStartForm'])->name('operations.start');
+    Route::post('/operations/{id}/start', [BatchOperationController::class, 'start'])->name('operations.start.post');
+    Route::get('/operations/{id}/complete', [BatchOperationController::class, 'showCompleteForm'])->name('operations.complete');
+    Route::post('/operations/{id}/complete', [BatchOperationController::class, 'complete'])->name('operations.complete.post');
+    Route::post('/operations/{id}/pause', [BatchOperationController::class, 'pause'])->name('operations.pause');
+    Route::post('/operations/{id}/resume', [BatchOperationController::class, 'resume'])->name('operations.resume');
+
     //machining process
     Route::prefix('machining')->name('machining.')->group(function(){
 
@@ -100,6 +166,44 @@ Route::middleware(['auth'])->group(function(){
 
         });
 
+    });
+
+    //wax room process
+    //Route::resource('wax-rooms',App\Http\Controllers\Process\WaxRoomController::class);
+    Route::get('wax-rooms',[App\Http\Controllers\Process\WaxRoomController::class,'qualityView'])->name('wax-rooms.quality-view');
+
+    //for production tracking module
+
+    //quality check every division
+    Route::get('/track/{division}/quality', [App\Http\Controllers\ProductionTrackingController::class, 'trackQuality'])->name('quality.track');
+    Route::get('/track/{division}/quality/pending', [App\Http\Controllers\ProductionTrackingController::class, 'qualityPending'])->name('qc.pending');
+    Route::get('/track/{division}/quality/pending', [App\Http\Controllers\ProductionTrackingController::class, 'qualityPending'])->name('qc.pending');
+
+    // Quality Check (Dynamic per Division)
+    Route::prefix('qc')->name('qc.')->group(function () {
+        // Pending QC
+        Route::get('/pending', [QualityCheckController::class, 'pending'])->name('pending');
+        
+        // Check Form
+        Route::get('/check/{batchOperationId}', [QualityCheckController::class, 'showCheckForm'])->name('check-form');
+        Route::post('/check/{batchOperationId}', [QualityCheckController::class, 'submit'])->name('submit');
+        
+        // History
+        Route::get('/history', [QualityCheckController::class, 'history'])->name('history');
+        
+        // Detail
+        Route::get('/{id}', [QualityCheckController::class, 'show'])->name('show');
+        
+        // Approve conditional (Supervisor only)
+        Route::post('/{id}/approve-conditional', [QualityCheckController::class, 'approveConditional'])->name('approve-conditional');
+        
+        // Export
+        Route::get('/export/csv', [QualityCheckController::class, 'export'])->name('export');
+    });
+
+    // API Endpoints
+    Route::prefix('api/qc')->name('api.qc.')->group(function () {
+        Route::get('/statistics', [QualityCheckController::class, 'getStatistics'])->name('statistics');
     });
 
 });
