@@ -290,7 +290,7 @@
                                 </div>
                                 <div class="menu-text">Scheduling</div>
                             </a>
-                            <a href="#" class="menu-item">
+                            <a href="{{ route('login', ['module' => 'repair']) }}" class="menu-item">
                                 <div class="menu-icon">
                                     <i class="bi bi-wrench-adjustable"></i>
                                 </div>

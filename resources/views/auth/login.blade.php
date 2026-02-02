@@ -139,20 +139,23 @@
                 App.loading('Proses login');
 
                 App.ajax('{{ route('login.store') }}', 'POST',formData).then(response => {
-                    // Handle successful login
-                    // For example, redirect to dashboard
+                    // Handle successful login with dynamic redirect
+                    App.closeLoading();
                     Swal.fire({
                         title: 'Login Berhasil',
                         text: 'Selamat datang kembali!',
                         icon: 'success',
-                        confirmButtonText: 'Lanjutkan'
+                        confirmButtonText: 'Lanjutkan',
+                        timer: 1500,
+                        timerProgressBar: true
                     }).then(() => {
-                    window.location.href = '{{ route('dashboard') }}';
+                        // App.ajax returns response.data directly, so access redirect directly
+                        window.location.href = response.redirect || '{{ route('dashboard') }}';
                     });
                 }).catch(error => {
                     // Handle login error
                     App.closeLoading();
-                    App.error('Gagal Login',error.response.data.message || 'Terjadi kesalahan saat login.');
+                    App.error('Gagal Login', error.response?.data?.message || 'Terjadi kesalahan saat login.');
                 });
                 // Example: Show error
                 // showError('Username atau password salah!');

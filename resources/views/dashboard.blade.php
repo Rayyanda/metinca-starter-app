@@ -1,286 +1,208 @@
-{{-- Inlcude layout utama (Sidebar dan footer) --}}
+{{-- Include layout utama (Sidebar dan footer) --}}
 @extends('layouts.app')
 
 {{-- Set title berdasarkan page --}}
-@section('title', 'Dashbaord')
+@section('title', 'Dashboard')
 
 {{-- Untuk menggunakan css --}}
 @push('styles')
-    {{-- contoh --}}
-    {{-- <link rel="stylesheet" href="{{ asset('assets/static/css/pages/dashboard.css') }}"> --}}
+<style>
+    .module-card {
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+    .module-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        border-color: #435ebe;
+    }
+    .module-icon {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        font-size: 28px;
+    }
+    .module-icon.maintenance { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .module-icon.hr { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+    .module-icon.production { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+    .module-icon.default { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+</style>
 @endpush
 
 {{-- Isi content --}}
 @section('content')
 
-    <div class="page-heading">
-        <h3>Profile Statistics</h3>
-    </div>
-    <div class="page-content">
-        <section class="row">
-            <div class="col-12 col-lg-9">
-                <div class="row">
-                    <div class="col-6 col-lg-3 col-md-6">
-                        <div class="card">
-                            <div class="card-body px-4 py-4-5">
-                                <div class="row">
-                                    <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start ">
-                                        <div class="stats-icon purple mb-2">
-                                            <i class="iconly-boldShow"></i>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
-                                        <h6 class="text-muted font-semibold">Profile Views</h6>
-                                        <h6 class="font-extrabold mb-0">112.000</h6>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-6 col-lg-3 col-md-6">
-                        <div class="card">
-                            <div class="card-body px-4 py-4-5">
-                                <div class="row">
-                                    <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start ">
-                                        <div class="stats-icon blue mb-2">
-                                            <i class="iconly-boldProfile"></i>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
-                                        <h6 class="text-muted font-semibold">Followers</h6>
-                                        <h6 class="font-extrabold mb-0">183.000</h6>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-6 col-lg-3 col-md-6">
-                        <div class="card">
-                            <div class="card-body px-4 py-4-5">
-                                <div class="row">
-                                    <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start ">
-                                        <div class="stats-icon green mb-2">
-                                            <i class="iconly-boldAdd-User"></i>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
-                                        <h6 class="text-muted font-semibold">Following</h6>
-                                        <h6 class="font-extrabold mb-0">80.000</h6>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-6 col-lg-3 col-md-6">
-                        <div class="card">
-                            <div class="card-body px-4 py-4-5">
-                                <div class="row">
-                                    <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start ">
-                                        <div class="stats-icon red mb-2">
-                                            <i class="iconly-boldBookmark"></i>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
-                                        <h6 class="text-muted font-semibold">Saved Post</h6>
-                                        <h6 class="font-extrabold mb-0">112</h6>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+<div class="page-heading">
+    <h3>Welcome, {{ $user->name }}</h3>
+    <p class="text-subtitle text-muted">
+        @if($user->isSuperAdmin())
+            Super Administrator - You have access to all modules
+        @else
+            {{ $user->getRoleNames()->implode(', ') }}
+        @endif
+    </p>
+</div>
+
+<div class="page-content">
+    <!-- Accessible Modules Section -->
+    <section class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Your Modules</h4>
+                    <p class="text-muted mb-0">Click a module to access its features</p>
                 </div>
-                <div class="row">
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <h4>Profile Visit</h4>
-                            </div>
-                            <div class="card-body">
-                                <div id="chart-profile-visit"></div>
-                            </div>
+                <div class="card-body">
+                    @if(count($accessibleModules) > 0)
+                    <div class="row">
+                        @foreach($accessibleModules as $key => $module)
+                        <div class="col-6 col-md-4 col-lg-3 mb-4">
+                            <a href="{{ route($key . '.dashboard') }}" class="text-decoration-none">
+                                <div class="card module-card h-100">
+                                    <div class="card-body text-center py-4">
+                                        <div class="module-icon {{ $module['category'] ?? 'default' }} mx-auto mb-3 text-white">
+                                            <i class="bi {{ $module['icon'] ?? 'bi-grid' }}"></i>
+                                        </div>
+                                        <h5 class="card-title mb-1">{{ $module['display_name'] }}</h5>
+                                        <p class="text-muted small mb-0">
+                                            @php
+                                                $role = $user->getModuleRole($key);
+                                            @endphp
+                                            {{ $role ? ucfirst(str_replace('_', ' ', $role)) : 'Access Granted' }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </a>
                         </div>
+                        @endforeach
                     </div>
+                    @else
+                    <div class="text-center py-5">
+                        <i class="bi bi-folder-x display-1 text-muted"></i>
+                        <h5 class="mt-3">No Modules Available</h5>
+                        <p class="text-muted">You don't have access to any modules yet. Please contact your administrator.</p>
+                    </div>
+                    @endif
                 </div>
-                <div class="row">
-                    <div class="col-12 col-xl-4">
-                        <div class="card">
-                            <div class="card-header">
-                                <h4>Profile Visit</h4>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-7">
-                                        <div class="d-flex align-items-center">
-                                            <svg class="bi text-primary" width="32" height="32" fill="blue"
-                                                style="width:10px">
-                                                <use xlink:href="assets/static/images/bootstrap-icons.svg#circle-fill" />
-                                            </svg>
-                                            <h5 class="mb-0 ms-3">Europe</h5>
-                                        </div>
-                                    </div>
-                                    <div class="col-5">
-                                        <h5 class="mb-0 text-end">862</h5>
-                                    </div>
-                                    <div class="col-12">
-                                        <div id="chart-europe"></div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-7">
-                                        <div class="d-flex align-items-center">
-                                            <svg class="bi text-success" width="32" height="32" fill="blue"
-                                                style="width:10px">
-                                                <use xlink:href="assets/static/images/bootstrap-icons.svg#circle-fill" />
-                                            </svg>
-                                            <h5 class="mb-0 ms-3">America</h5>
-                                        </div>
-                                    </div>
-                                    <div class="col-5">
-                                        <h5 class="mb-0 text-end">375</h5>
-                                    </div>
-                                    <div class="col-12">
-                                        <div id="chart-america"></div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-7">
-                                        <div class="d-flex align-items-center">
-                                            <svg class="bi text-danger" width="32" height="32" fill="blue"
-                                                style="width:10px">
-                                                <use xlink:href="assets/static/images/bootstrap-icons.svg#circle-fill" />
-                                            </svg>
-                                            <h5 class="mb-0 ms-3">Indonesia</h5>
-                                        </div>
-                                    </div>
-                                    <div class="col-5">
-                                        <h5 class="mb-0 text-end">1025</h5>
-                                    </div>
-                                    <div class="col-12">
-                                        <div id="chart-indonesia"></div>
-                                    </div>
-                                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Stats Section -->
+    <section class="row">
+        <div class="col-6 col-lg-3 col-md-6">
+            <div class="card">
+                <div class="card-body px-4 py-4-5">
+                    <div class="row">
+                        <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
+                            <div class="stats-icon purple mb-2">
+                                <i class="bi bi-grid"></i>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-12 col-xl-8">
-                        <div class="card">
-                            <div class="card-header">
-                                <h4>Latest Comments</h4>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-hover table-lg">
-                                        <thead>
-                                            <tr>
-                                                <th>Name</th>
-                                                <th>Comment</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td class="col-3">
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="avatar avatar-md">
-                                                            <img src="./assets/compiled/jpg/5.jpg">
-                                                        </div>
-                                                        <p class="font-bold ms-3 mb-0">Si Cantik</p>
-                                                    </div>
-                                                </td>
-                                                <td class="col-auto">
-                                                    <p class=" mb-0">Congratulations on your graduation!</p>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="col-3">
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="avatar avatar-md">
-                                                            <img src="./assets/compiled/jpg/2.jpg">
-                                                        </div>
-                                                        <p class="font-bold ms-3 mb-0">Si Ganteng</p>
-                                                    </div>
-                                                </td>
-                                                <td class="col-auto">
-                                                    <p class=" mb-0">Wow amazing design! Can you make another
-                                                        tutorial for
-                                                        this design?</p>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+                        <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
+                            <h6 class="text-muted font-semibold">Available Modules</h6>
+                            <h6 class="font-extrabold mb-0">{{ count($accessibleModules) }}</h6>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-12 col-lg-3">
-                <div class="card">
-                    <div class="card-body py-4 px-4">
-                        <div class="d-flex align-items-center">
-                            <div class="avatar avatar-xl">
-                                <img src="./assets/compiled/jpg/1.jpg" alt="Face 1">
-                            </div>
-                            <div class="ms-3 name">
-                                <h5 class="font-bold">John Duck</h5>
-                                <h6 class="text-muted mb-0">@johnducky</h6>
+        </div>
+        <div class="col-6 col-lg-3 col-md-6">
+            <div class="card">
+                <div class="card-body px-4 py-4-5">
+                    <div class="row">
+                        <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
+                            <div class="stats-icon blue mb-2">
+                                <i class="bi bi-person-badge"></i>
                             </div>
                         </div>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-header">
-                        <h4>Recent Messages</h4>
-                    </div>
-                    <div class="card-content pb-4">
-                        <div class="recent-message d-flex px-4 py-3">
-                            <div class="avatar avatar-lg">
-                                <img src="./assets/compiled/jpg/4.jpg">
-                            </div>
-                            <div class="name ms-4">
-                                <h5 class="mb-1">Hank Schrader</h5>
-                                <h6 class="text-muted mb-0">@johnducky</h6>
-                            </div>
+                        <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
+                            <h6 class="text-muted font-semibold">Your Roles</h6>
+                            <h6 class="font-extrabold mb-0">{{ $user->getRoleNames()->count() }}</h6>
                         </div>
-                        <div class="recent-message d-flex px-4 py-3">
-                            <div class="avatar avatar-lg">
-                                <img src="./assets/compiled/jpg/5.jpg">
-                            </div>
-                            <div class="name ms-4">
-                                <h5 class="mb-1">Dean Winchester</h5>
-                                <h6 class="text-muted mb-0">@imdean</h6>
-                            </div>
-                        </div>
-                        <div class="recent-message d-flex px-4 py-3">
-                            <div class="avatar avatar-lg">
-                                <img src="./assets/compiled/jpg/1.jpg">
-                            </div>
-                            <div class="name ms-4">
-                                <h5 class="mb-1">John Dodol</h5>
-                                <h6 class="text-muted mb-0">@dodoljohn</h6>
-                            </div>
-                        </div>
-                        <div class="px-4">
-                            <button class='btn btn-block btn-xl btn-outline-primary font-bold mt-3'>Start
-                                Conversation</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-header">
-                        <h4>Visitors Profile</h4>
-                    </div>
-                    <div class="card-body">
-                        <div id="chart-visitors-profile"></div>
                     </div>
                 </div>
             </div>
-        </section>
-    </div>
+        </div>
+        <div class="col-6 col-lg-3 col-md-6">
+            <div class="card">
+                <div class="card-body px-4 py-4-5">
+                    <div class="row">
+                        <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
+                            <div class="stats-icon green mb-2">
+                                <i class="bi bi-shield-check"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
+                            <h6 class="text-muted font-semibold">Account Type</h6>
+                            <h6 class="font-extrabold mb-0">{{ $user->isSuperAdmin() ? 'Admin' : 'User' }}</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3 col-md-6">
+            <div class="card">
+                <div class="card-body px-4 py-4-5">
+                    <div class="row">
+                        <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
+                            <div class="stats-icon red mb-2">
+                                <i class="bi bi-clock-history"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
+                            <h6 class="text-muted font-semibold">Last Login</h6>
+                            <h6 class="font-extrabold mb-0">Today</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- User Profile Card -->
+    <section class="row">
+        <div class="col-12 col-lg-4">
+            <div class="card">
+                <div class="card-body py-4 px-4">
+                    <div class="d-flex align-items-center">
+                        <div class="avatar avatar-xl bg-primary text-white d-flex align-items-center justify-content-center" style="font-size: 24px;">
+                            {{ strtoupper(substr($user->name, 0, 1)) }}
+                        </div>
+                        <div class="ms-3 name">
+                            <h5 class="font-bold mb-1">{{ $user->name }}</h5>
+                            <h6 class="text-muted mb-0">{{ $user->email }}</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Your Permissions</h4>
+                </div>
+                <div class="card-body">
+                    @if($user->isSuperAdmin())
+                        <span class="badge bg-success me-1 mb-1">Full Access (Super Admin)</span>
+                    @else
+                        @forelse($user->getAllPermissions() as $permission)
+                            <span class="badge bg-primary me-1 mb-1">{{ $permission->name }}</span>
+                        @empty
+                            <p class="text-muted mb-0">No specific permissions assigned</p>
+                        @endforelse
+                    @endif
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
 
 @endsection
 
 {{-- Untuk menggunakan js --}}
 @push('scripts')
-    <script src="{{ asset('assets/extensions/apexcharts/apexcharts.min.js') }}"></script>
-    <script src="{{ asset('assets/static/js/pages/dashboard.js') }}"></script>
 @endpush

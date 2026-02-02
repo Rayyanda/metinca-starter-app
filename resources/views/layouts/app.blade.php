@@ -276,6 +276,7 @@
 
         document.getElementById('formLogout').addEventListener('submit', function(e){
             e.preventDefault();
+            const form = this;
             Swal.fire({
                 title: 'Yakin ingin logout?',
                 icon: 'warning',
@@ -283,21 +284,25 @@
                 confirmButtonText: 'Ya, Logout',
                 cancelButtonText: 'Batal'
             }).then((result) => {
-                App.ajax('{{ route('logout') }}', 'POST',new FormData(this)).then(response => {
-                    Swal.fire({
-                        title: 'Berhasil!',
-                        text: 'Anda telah logout.',
-                        icon: 'success',
-                        timer: 1500,
-                        showConfirmButton: false
-                    }).then(() => {
+                if (result.isConfirmed) {
+                    App.loading('Logging out...');
+                    App.ajax('{{ route('logout') }}', 'POST', new FormData(form)).then(response => {
+                        App.closeLoading();
+                        Swal.fire({
+                            title: 'Berhasil!',
+                            text: 'Anda telah logout.',
+                            icon: 'success',
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.href = '{{ route('login') }}';
+                        });
+                    }).catch(error => {
+                        App.closeLoading();
+                        // Even on error, redirect to login (session likely invalidated)
                         window.location.href = '{{ route('login') }}';
                     });
-                    
-                }).catch(error => {
-                    console.log(error);
-                    App.error('Gagal Logout' || 'Terjadi kesalahan saat logout.');
-                });
+                }
             });
         });
 
