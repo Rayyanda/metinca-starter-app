@@ -58,12 +58,14 @@ class DamageReportController extends Controller
             ->with('status', 'Damage report created successfully.');
     }
 
-    public function show(DamageReport $damageReport)
+    public function show(DamageReport $damageReport, Request $request)
     {
         $damageReport->load([
             'machine',
             'reporter',
             'assignedTechnician',
+            'receivedByForeman',
+            'approvedByManager',
             'attachments',
             'histories.actor',
         ]);
@@ -72,6 +74,8 @@ class DamageReportController extends Controller
             'report' => $damageReport,
             'beforeAttachments' => $damageReport->beforeAttachments()->get(),
             'afterAttachments' => $damageReport->afterAttachments()->get(),
+            'allowedTransitions' => $this->damageReportService
+                ->getAllowedTransitionsForUser($damageReport, $request->user()),
         ]);
     }
 
@@ -79,17 +83,22 @@ class DamageReportController extends Controller
     {
         $validated = $request->validated();
         $newStatus = $validated['status'];
+        $user = $request->user();
 
-        if (!$this->damageReportService->canTransitionTo($damageReport, $newStatus)) {
-            return back()->withErrors(['status' => 'Invalid status transition.']);
+        // Use role-aware validation
+        if (!$this->damageReportService->canUserTransitionTo($damageReport, $newStatus, $user)) {
+            return back()->withErrors([
+                'status' => 'You do not have permission to perform this status transition.'
+            ]);
         }
 
         $this->damageReportService->updateStatus(
             $damageReport,
             $newStatus,
-            $request->user(),
+            $user,
             $validated['notes'] ?? null,
-            $request->file('after_photos', [])
+            $request->file('after_photos', []),
+            $validated['assigned_technician_id'] ?? null
         );
 
         return redirect()
@@ -101,6 +110,11 @@ class DamageReportController extends Controller
     {
         $user = $request->user();
         $filters = $request->only(['status', 'priority', 'department', 'machine', 'from', 'to']);
+
+        // Managers should only export completed reports by default
+        if ($user->hasRole('repair.manager') && !isset($filters['status'])) {
+            $filters['status'] = DamageReport::STATUS_DONE_FIXING;
+        }
 
         return Excel::download(new DamageReportsExport($filters, $user), 'damage-reports.xlsx');
     }

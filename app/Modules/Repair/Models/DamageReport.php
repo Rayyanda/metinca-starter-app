@@ -13,6 +13,14 @@ class DamageReport extends Model
 {
     use HasFactory;
 
+    // New workflow statuses
+    public const STATUS_UPLOADED_BY_OPERATOR = 'uploaded_by_operator';
+    public const STATUS_RECEIVED_BY_FOREMAN = 'received_by_foreman_waiting_manager';
+    public const STATUS_APPROVED_BY_MANAGER = 'approved_by_manager_waiting_technician';
+    public const STATUS_ON_FIXING_PROGRESS = 'on_fixing_progress';
+    public const STATUS_DONE_FIXING = 'done_fixing';
+
+    // Backward compatibility - old statuses
     public const STATUS_WAITING = 'waiting';
     public const STATUS_IN_PROGRESS = 'in_progress';
     public const STATUS_DONE = 'done';
@@ -27,6 +35,8 @@ class DamageReport extends Model
         'machine_id',
         'reported_by',
         'assigned_technician_id',
+        'received_by_foreman_id',
+        'approved_by_manager_id',
         'department',
         'location',
         'section',
@@ -36,12 +46,18 @@ class DamageReport extends Model
         'priority',
         'status',
         'reported_at',
+        'received_by_foreman_at',
+        'approved_by_manager_at',
+        'started_fixing_at',
         'target_completed_at',
         'actual_completed_at',
     ];
 
     protected $casts = [
         'reported_at' => 'datetime',
+        'received_by_foreman_at' => 'datetime',
+        'approved_by_manager_at' => 'datetime',
+        'started_fixing_at' => 'datetime',
         'target_completed_at' => 'date',
         'actual_completed_at' => 'datetime',
     ];
@@ -75,13 +91,32 @@ class DamageReport extends Model
         return $this->belongsTo(Machine::class);
     }
 
+    /**
+     * Get allowed next statuses (workflow-based only, not role-aware)
+     * @deprecated Use DamageReportService::getAllowedTransitionsForUser() instead
+     */
     public function allowedNextStatuses(): array
     {
         return match ($this->status) {
+            self::STATUS_UPLOADED_BY_OPERATOR => [self::STATUS_RECEIVED_BY_FOREMAN],
+            self::STATUS_RECEIVED_BY_FOREMAN => [self::STATUS_APPROVED_BY_MANAGER],
+            self::STATUS_APPROVED_BY_MANAGER => [self::STATUS_ON_FIXING_PROGRESS],
+            self::STATUS_ON_FIXING_PROGRESS => [self::STATUS_DONE_FIXING],
+            // Backward compatibility
             self::STATUS_WAITING => [self::STATUS_IN_PROGRESS, self::STATUS_DONE],
             self::STATUS_IN_PROGRESS => [self::STATUS_DONE],
             default => [],
         };
+    }
+
+    /**
+     * Get allowed next statuses for a specific user role
+     */
+    public function allowedNextStatusesForRole(User $user): array
+    {
+        // Delegate to service layer for role-based logic
+        return app(\App\Modules\Repair\Services\Contracts\DamageReportServiceInterface::class)
+            ->getAllowedTransitionsForUser($this, $user);
     }
 
     public function reporter(): BelongsTo
@@ -92,6 +127,16 @@ class DamageReport extends Model
     public function assignedTechnician(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_technician_id');
+    }
+
+    public function receivedByForeman(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'received_by_foreman_id');
+    }
+
+    public function approvedByManager(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approved_by_manager_id');
     }
 
     public function attachments(): HasMany
@@ -139,10 +184,46 @@ class DamageReport extends Model
     public function statusBadgeClass(): string
     {
         return match ($this->status) {
+            self::STATUS_UPLOADED_BY_OPERATOR => 'bg-secondary',
+            self::STATUS_RECEIVED_BY_FOREMAN => 'bg-info',
+            self::STATUS_APPROVED_BY_MANAGER => 'bg-warning',
+            self::STATUS_ON_FIXING_PROGRESS => 'bg-primary',
+            self::STATUS_DONE_FIXING => 'bg-success',
+            // Backward compatibility
             self::STATUS_WAITING => 'bg-secondary',
             self::STATUS_IN_PROGRESS => 'bg-primary',
             self::STATUS_DONE => 'bg-success',
             default => 'bg-secondary',
         };
+    }
+
+    /**
+     * Get human-readable status label
+     */
+    public function getStatusLabelAttribute(): string
+    {
+        return match ($this->status) {
+            self::STATUS_UPLOADED_BY_OPERATOR => 'Diupload oleh Operator',
+            self::STATUS_RECEIVED_BY_FOREMAN => 'Diterima oleh Foreman',
+            self::STATUS_APPROVED_BY_MANAGER => 'Disetujui oleh Manager',
+            self::STATUS_ON_FIXING_PROGRESS => 'Sedang Diperbaiki',
+            self::STATUS_DONE_FIXING => 'Selesai Diperbaiki',
+            // Backward compatibility
+            self::STATUS_WAITING => 'Menunggu',
+            self::STATUS_IN_PROGRESS => 'Sedang Dikerjakan',
+            self::STATUS_DONE => 'Selesai',
+            default => ucfirst(str_replace('_', ' ', $this->status)),
+        };
+    }
+
+    /**
+     * Check if report is in a final state
+     */
+    public function isCompleted(): bool
+    {
+        return in_array($this->status, [
+            self::STATUS_DONE_FIXING,
+            self::STATUS_DONE, // Backward compatibility
+        ]);
     }
 }

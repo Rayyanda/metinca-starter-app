@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title') - Repair Module</title>
+    <title>@yield('title') - Modul Perbaikan</title>
     <link rel="shortcut icon" href="{{ asset('assets/compiled/svg/favicon.svg') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ asset('assets/compiled/css/app.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/compiled/css/app-dark.css') }}">
@@ -22,7 +22,7 @@
                         <div class="logo">
                             <a href="{{ route('repair.dashboard') }}">
                                 <i class="bi bi-wrench-adjustable fs-3 text-primary"></i>
-                                <span class="ms-2 fw-bold">Repair</span>
+                                <span class="ms-2 fw-bold">Perbaikan</span>
                             </a>
                         </div>
                         <div class="theme-toggle d-flex gap-2 align-items-center mt-2">
@@ -37,38 +37,38 @@
                 </div>
                 <div class="sidebar-menu">
                     <ul class="menu">
-                        <li class="sidebar-title">Repair Module</li>
+                        <li class="sidebar-title">Modul Perbaikan</li>
 
                         <li class="sidebar-item {{ request()->routeIs('repair.dashboard') ? 'active' : '' }}">
                             <a href="{{ route('repair.dashboard') }}" class='sidebar-link'>
                                 <i class="bi bi-grid-fill"></i>
-                                <span>Dashboard</span>
+                                <span>Dasbor</span>
                             </a>
                         </li>
 
                         <li class="sidebar-item has-sub {{ request()->routeIs('repair.reports.*') ? 'active' : '' }}">
                             <a href="#" class='sidebar-link'>
                                 <i class="bi bi-file-earmark-text"></i>
-                                <span>Reports</span>
+                                <span>Laporan</span>
                             </a>
                             <ul class="submenu">
                                 <li class="submenu-item {{ request()->routeIs('repair.reports.index') ? 'active' : '' }}">
-                                    <a href="{{ route('repair.reports.index') }}" class="submenu-link">All Reports</a>
+                                    <a href="{{ route('repair.reports.index') }}" class="submenu-link">Semua Laporan</a>
                                 </li>
                                 @can('repair.create')
                                 <li class="submenu-item {{ request()->routeIs('repair.reports.create') ? 'active' : '' }}">
-                                    <a href="{{ route('repair.reports.create') }}" class="submenu-link">Create New</a>
+                                    <a href="{{ route('repair.reports.create') }}" class="submenu-link">Buat Baru</a>
                                 </li>
                                 @endcan
                             </ul>
                         </li>
 
-                        <li class="sidebar-title">Actions</li>
+                        <li class="sidebar-title">Aksi</li>
 
                         <li class="sidebar-item">
                             <a href="{{ route('dashboard') }}" class='sidebar-link'>
                                 <i class="bi bi-arrow-left-circle"></i>
-                                <span>Back to Main</span>
+                                <span>Kembali ke Menu Utama</span>
                             </a>
                         </li>
                     </ul>
@@ -91,9 +91,9 @@
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-end notification-dropdown">
                                         <li class="dropdown-header">
-                                            <h6>Notifications</h6>
+                                            <h6>Notifikasi</h6>
                                         </li>
-                                        <li><a class="dropdown-item" href="#">No notifications</a></li>
+                                        <li><a class="dropdown-item" href="#">Tidak ada notifikasi</a></li>
                                     </ul>
                                 </li>
                             </ul>
@@ -113,14 +113,14 @@
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end" style="min-width: 11rem">
                                     <li>
-                                        <h6 class="dropdown-header">Hello, {{ auth()->user()->name }}!</h6>
+                                        <h6 class="dropdown-header">Halo, {{ auth()->user()->name }}!</h6>
                                     </li>
                                     <li><hr class="dropdown-divider" /></li>
                                     <li>
                                         <form id="formLogout">
                                             @csrf
                                             <button type="submit" class="dropdown-item">
-                                                <i class="icon-mid bi bi-box-arrow-left me-2"></i> Logout
+                                                <i class="icon-mid bi bi-box-arrow-left me-2"></i> Keluar
                                             </button>
                                         </form>
                                     </li>
@@ -156,7 +156,7 @@
             <footer>
                 <div class="footer clearfix mb-0 text-muted">
                     <div class="float-start">
-                        <p>2026 &copy; Metinca Repair Module</p>
+                        <p>2026 &copy; Modul Perbaikan Metinca</p>
                     </div>
                 </div>
             </footer>
@@ -173,14 +173,14 @@
             e.preventDefault();
             const form = this;
             Swal.fire({
-                title: 'Confirm Logout',
+                title: 'Konfirmasi Keluar',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonText: 'Yes, Logout',
-                cancelButtonText: 'Cancel'
+                confirmButtonText: 'Ya, Keluar',
+                cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    App.loading('Logging out...');
+                    App.loading('Sedang keluar...');
                     App.ajax('{{ route('logout') }}', 'POST', new FormData(form)).then(response => {
                         App.closeLoading();
                         window.location.href = '{{ route('login') }}';

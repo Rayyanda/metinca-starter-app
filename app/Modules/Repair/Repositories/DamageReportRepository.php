@@ -20,16 +20,23 @@ class DamageReportRepository extends BaseRepository implements DamageReportRepos
     public function getFiltered(array $filters, User $user, int $perPage = 15): LengthAwarePaginator
     {
         $query = $this->model
-            ->with(['machine', 'reporter', 'assignedTechnician'])
+            ->with(['machine', 'reporter', 'assignedTechnician', 'receivedByForeman', 'approvedByManager'])
             ->filter($filters)
             ->orderByDesc('reported_at');
 
         if ($user->hasRole('super_admin') || $user->hasAnyRole(['repair.supervisor', 'repair.manager'])) {
             // Can see all reports
         } elseif ($user->hasRole('repair.user')) {
+            // Operators see only their own reports
             $query->where('reported_by', $user->id);
         } elseif ($user->hasRole('repair.technician')) {
-            $query->where('assigned_technician_id', $user->id);
+            // Technicians see reports assigned to them that are ready or in progress
+            $query->where('assigned_technician_id', $user->id)
+                 ->whereIn('status', [
+                     DamageReport::STATUS_APPROVED_BY_MANAGER,
+                     DamageReport::STATUS_ON_FIXING_PROGRESS,
+                     DamageReport::STATUS_DONE_FIXING,
+                 ]);
         }
 
         return $query->paginate($perPage)->withQueryString();
@@ -52,7 +59,10 @@ class DamageReportRepository extends BaseRepository implements DamageReportRepos
 
         return $this->model
             ->with(['assignedTechnician'])
-            ->where('status', '!=', DamageReport::STATUS_DONE)
+            ->whereNotIn('status', [
+                DamageReport::STATUS_DONE_FIXING,
+                DamageReport::STATUS_DONE, // Backward compatibility
+            ])
             ->whereNotNull('target_completed_at')
             ->whereBetween('target_completed_at', [$today, $twoDaysFromNow])
             ->get();
@@ -62,7 +72,10 @@ class DamageReportRepository extends BaseRepository implements DamageReportRepos
     {
         return $this->model
             ->with(['assignedTechnician'])
-            ->where('status', '!=', DamageReport::STATUS_DONE)
+            ->whereNotIn('status', [
+                DamageReport::STATUS_DONE_FIXING,
+                DamageReport::STATUS_DONE, // Backward compatibility
+            ])
             ->whereNotNull('target_completed_at')
             ->where('target_completed_at', '<', Carbon::today())
             ->get();

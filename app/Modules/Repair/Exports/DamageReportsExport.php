@@ -23,7 +23,17 @@ class DamageReportsExport implements FromCollection, WithMapping, WithHeadings
         if ($this->user->hasRole('repair.user')) {
             $query->where('reported_by', $this->user->id);
         } elseif ($this->user->hasRole('repair.technician')) {
-            $query->where('assigned_technician_id', $this->user->id);
+            $query->where('assigned_technician_id', $this->user->id)
+                 ->whereIn('status', [
+                     DamageReport::STATUS_APPROVED_BY_MANAGER,
+                     DamageReport::STATUS_ON_FIXING_PROGRESS,
+                     DamageReport::STATUS_DONE_FIXING,
+                 ]);
+        } elseif ($this->user->hasRole('repair.manager')) {
+            // Managers export only completed reports unless filtered otherwise
+            if (!isset($this->filters['status'])) {
+                $query->where('status', DamageReport::STATUS_DONE_FIXING);
+            }
         }
 
         return $query->orderByDesc('reported_at')->get();
@@ -37,7 +47,7 @@ class DamageReportsExport implements FromCollection, WithMapping, WithHeadings
             $report->department,
             $report->damage_type_other ?: $report->damage_type,
             ucfirst($report->priority),
-            strtoupper(str_replace('_', ' ', $report->status)),
+            $report->status_label,
             optional($report->reported_at)->format('Y-m-d H:i'),
             optional($report->target_completed_at)->format('Y-m-d'),
             optional($report->actual_completed_at)->format('Y-m-d H:i'),

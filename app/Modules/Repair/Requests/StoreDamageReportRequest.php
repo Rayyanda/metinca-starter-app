@@ -30,7 +30,7 @@ class StoreDamageReportRequest extends FormRequest
                 DamageReport::PRIORITY_CRITICAL,
             ])],
             'target_completed_at' => ['nullable', 'date', 'after_or_equal:today'],
-            'assigned_technician_id' => ['required', 'exists:users,id'],
+            'assigned_technician_id' => ['nullable', 'exists:users,id'],
             'before_photos' => ['required', 'array', 'min:1'],
             'before_photos.*' => ['file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
         ];

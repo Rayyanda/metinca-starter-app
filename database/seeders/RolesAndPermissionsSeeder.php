@@ -52,62 +52,29 @@ class RolesAndPermissionsSeeder extends Seeder
 
     private function createTestUsers($superAdmin, $repairUser, $repairTechnician, $repairSupervisor, $repairManager): void
     {
-        // Super Admin
-        $admin = User::firstOrCreate(
-            ['email' => 'super@metinca.local'],
+        // 1. Operator (Repair User)
+        $operator = User::firstOrCreate(
+            ['email' => 'operator@metinca.local'],
             [
-                'name' => 'Super Admin',
+                'name' => 'Operator',
                 'password' => Hash::make('password'),
                 'email_verified_at' => now(),
             ]
         );
-        $admin->assignRole($superAdmin);
+        $operator->assignRole($repairUser);
 
-        // Repair User (Reporter)
-        $reporter = User::firstOrCreate(
-            ['email' => 'reporter@metinca.local'],
+        // 2. Foreman (Repair Supervisor)
+        $foreman = User::firstOrCreate(
+            ['email' => 'foreman@metinca.local'],
             [
-                'name' => 'Reporter User',
+                'name' => 'Foreman',
                 'password' => Hash::make('password'),
                 'email_verified_at' => now(),
             ]
         );
-        $reporter->assignRole($repairUser);
+        $foreman->assignRole($repairSupervisor);
 
-        // Repair Technician
-        $tech = User::firstOrCreate(
-            ['email' => 'tech@metinca.local'],
-            [
-                'name' => 'Technician',
-                'password' => Hash::make('password'),
-                'email_verified_at' => now(),
-            ]
-        );
-        $tech->assignRole($repairTechnician);
-
-        // Another Technician
-        $tech2 = User::firstOrCreate(
-            ['email' => 'tech2@metinca.local'],
-            [
-                'name' => 'Technician 2',
-                'password' => Hash::make('password'),
-                'email_verified_at' => now(),
-            ]
-        );
-        $tech2->assignRole($repairTechnician);
-
-        // Repair Supervisor
-        $supervisor = User::firstOrCreate(
-            ['email' => 'supervisor@metinca.local'],
-            [
-                'name' => 'Supervisor',
-                'password' => Hash::make('password'),
-                'email_verified_at' => now(),
-            ]
-        );
-        $supervisor->assignRole($repairSupervisor);
-
-        // Repair Manager
+        // 3. Manager (Repair Manager)
         $manager = User::firstOrCreate(
             ['email' => 'manager@metinca.local'],
             [
@@ -117,5 +84,16 @@ class RolesAndPermissionsSeeder extends Seeder
             ]
         );
         $manager->assignRole($repairManager);
+
+        // 4. Technician (Repair Technician)
+        $technician = User::firstOrCreate(
+            ['email' => 'technician@metinca.local'],
+            [
+                'name' => 'Technician',
+                'password' => Hash::make('password'),
+                'email_verified_at' => now(),
+            ]
+        );
+        $technician->assignRole($repairTechnician);
     }
 }
